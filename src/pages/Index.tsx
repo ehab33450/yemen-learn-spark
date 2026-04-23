@@ -94,7 +94,7 @@ const Index = () => {
                     <p className="text-muted-foreground text-sm leading-relaxed">{track.description}</p>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline" onClick={() => navigate(`/courses?track=${track.id}`)} className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors font-display text-sm">استكشف المسار</Button>
+              <Button variant="outline" onClick={() => navigate(`/tracks/${track.id}`)} className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors font-display text-sm">استكشف المسار</Button>
                   </CardFooter>
                 </Card>
               </motion.div>
@@ -147,14 +147,12 @@ const Index = () => {
                   <CardContent className="pb-2">
                     <p className="text-muted-foreground text-xs line-clamp-2">{course.description}</p>
                     <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1"><BookOpen className="h-3 w-3" /> {course.lessonsCount} درس</span>
-                      <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {course.studentsCount} طالب</span>
-                      <span className="flex items-center gap-1"><Star className="h-3 w-3 text-gold" /> {course.rating}</span>
+                      {course.duration && <span className="flex items-center gap-1"><BookOpen className="h-3 w-3" /> {course.duration}</span>}
                     </div>
                   </CardContent>
                   <CardFooter>
                     <Button asChild size="sm" className="w-full bg-gradient-gold text-primary font-display font-semibold hover:opacity-90">
-                      <Link to={`/courses/${course.id}`}>عرض التفاصيل</Link>
+                      <Link to={`/courses/${course.slug}`}>عرض التفاصيل</Link>
                     </Button>
                   </CardFooter>
                 </Card>
