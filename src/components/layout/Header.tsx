@@ -37,7 +37,7 @@ export const Header = () => {
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           <Link to="/" className="text-foreground hover:text-accent transition-colors">الرئيسية</Link>
-          <Link to="/courses" className="text-muted-foreground hover:text-accent transition-colors">الدورات</Link>
+          <Link to="/tracks" className="text-muted-foreground hover:text-accent transition-colors">المسارات</Link>
           {user && (
             <Link to="/dashboard" className="text-muted-foreground hover:text-accent transition-colors">لوحتي</Link>
           )}
@@ -57,6 +57,9 @@ export const Header = () => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate("/dashboard")}>
                   <LayoutDashboard className="ml-2 h-4 w-4" /> لوحتي
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/certificates")}>
+                  <LayoutDashboard className="ml-2 h-4 w-4" /> شهاداتي
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="ml-2 h-4 w-4" /> تسجيل الخروج
