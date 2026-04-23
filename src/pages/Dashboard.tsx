@@ -1,149 +1,151 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate } from "react-router-dom";
-import { BookOpen, Trophy, Zap, Award, ArrowLeft } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
-import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { courses } from "@/data/courses";
+import { useAuth } from "@/contexts/AuthContext";
+import { Trophy, Award, Flame, BookOpen, ArrowLeft } from "lucide-react";
 
-interface Profile {
-  display_name: string;
-  xp_points: number;
-  level: number;
-  city: string | null;
+interface CourseProgress {
+  course_id: string;
+  slug: string;
+  title: string;
+  emoji: string | null;
+  total_lessons: number;
+  mastered_lessons: number;
+  next_lesson_id: string | null;
 }
 
 const Dashboard = () => {
-  const { user, loading } = useAuth();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [enrolledIds, setEnrolledIds] = useState<string[]>([]);
-  const [progressCount, setProgressCount] = useState(0);
-  const [dataLoading, setDataLoading] = useState(true);
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState<{ display_name: string; xp_points: number; level: number } | null>(null);
+  const [items, setItems] = useState<CourseProgress[]>([]);
+  const [certCount, setCertCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { if (!authLoading && !user) navigate("/auth"); }, [authLoading, user, navigate]);
 
   useEffect(() => {
     if (!user) return;
-    Promise.all([
-      supabase.from("profiles").select("display_name, xp_points, level, city").eq("user_id", user.id).maybeSingle(),
-      supabase.from("enrollments").select("course_id").eq("user_id", user.id),
-      supabase.from("course_progress").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-    ]).then(([p, e, prog]) => {
-      if (p.data) setProfile(p.data as Profile);
-      if (e.data) setEnrolledIds(e.data.map((r) => r.course_id));
-      setProgressCount(prog.count ?? 0);
-      setDataLoading(false);
-    });
+    (async () => {
+      const { data: prof } = await supabase.from("profiles").select("display_name,xp_points,level").eq("user_id", user.id).maybeSingle();
+      setProfile(prof as any);
+
+      const { data: prog } = await supabase
+        .from("lesson_progress").select("course_id,lesson_id,mastery_percent")
+        .eq("user_id", user.id);
+
+      const courseIds = Array.from(new Set((prog ?? []).map((p) => p.course_id)));
+      if (courseIds.length === 0) { setLoading(false); return; }
+
+      const { data: courses } = await supabase
+        .from("courses").select("id,slug,title,emoji,modules(id,sort_order,lessons(id,sort_order))")
+        .in("id", courseIds);
+
+      const list: CourseProgress[] = (courses ?? []).map((c: any) => {
+        const lessons: { id: string; sort_order: number; modSort: number }[] = [];
+        (c.modules ?? []).forEach((m: any) =>
+          (m.lessons ?? []).forEach((l: any) => lessons.push({ id: l.id, sort_order: l.sort_order, modSort: m.sort_order }))
+        );
+        lessons.sort((a, b) => a.modSort - b.modSort || a.sort_order - b.sort_order);
+        const masteredIds = new Set(
+          (prog ?? []).filter((p) => p.course_id === c.id && p.mastery_percent >= 80).map((p) => p.lesson_id)
+        );
+        const next = lessons.find((l) => !masteredIds.has(l.id));
+        return {
+          course_id: c.id,
+          slug: c.slug,
+          title: c.title,
+          emoji: c.emoji,
+          total_lessons: lessons.length,
+          mastered_lessons: masteredIds.size,
+          next_lesson_id: next?.id ?? null,
+        };
+      });
+      setItems(list);
+
+      const { count } = await supabase.from("certificates").select("*", { count: "exact", head: true }).eq("user_id", user.id);
+      setCertCount(count ?? 0);
+      setLoading(false);
+    })();
   }, [user]);
 
-  if (loading) return null;
-  if (!user) return <Navigate to="/auth" replace />;
+  if (authLoading || !user) return null;
 
-  const enrolledCourses = courses.filter((c) => enrolledIds.includes(c.id));
-  const xp = profile?.xp_points ?? 0;
-  const level = profile?.level ?? 1;
-  const xpToNextLevel = level * 1000;
-  const xpProgress = (xp % 1000) / 10;
+  const xpInLevel = (profile?.xp_points ?? 0) % 100;
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <section className="bg-gradient-hero text-primary-foreground py-10">
-        <div className="container">
-          <h1 className="font-display text-2xl md:text-3xl font-bold mb-1">
-            مرحباً، {profile?.display_name ?? "صديقنا"} 👋
-          </h1>
-          <p className="text-primary-foreground/80 text-sm">واصل رحلتك التعليمية. كل خطوة تقربك من هدفك.</p>
-        </div>
-      </section>
+      <main className="container py-10">
+        <h1 className="font-display text-3xl font-extrabold text-primary mb-1">
+          مرحباً، {profile?.display_name ?? "صديقي"} 👋
+        </h1>
+        <p className="text-muted-foreground mb-8">رحلتك تتقدم — استمر!</p>
 
-      <section className="container py-8 space-y-8">
-        {/* === XP & Stats === */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="glass-card">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-3 mb-2">
-                <Zap className="h-5 w-5 text-gold" />
-                <span className="text-sm font-medium text-muted-foreground">نقاط XP</span>
-              </div>
-              <div className="font-display text-2xl font-extrabold text-primary">{xp.toLocaleString("ar")}</div>
-            </CardContent>
+        <div className="grid sm:grid-cols-3 gap-4 mb-8">
+          <Card className="p-5">
+            <div className="flex items-center gap-3 mb-1"><Trophy className="h-5 w-5 text-accent" /><span className="text-sm text-muted-foreground">المستوى</span></div>
+            <div className="font-display text-3xl font-extrabold text-primary">{profile?.level ?? 1}</div>
           </Card>
-          <Card className="glass-card">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-3 mb-2">
-                <Trophy className="h-5 w-5 text-accent" />
-                <span className="text-sm font-medium text-muted-foreground">المستوى</span>
-              </div>
-              <div className="font-display text-2xl font-extrabold text-primary">{level}</div>
-              <Progress value={xpProgress} className="h-1.5 mt-2" />
-              <p className="text-[10px] text-muted-foreground mt-1">{xpToNextLevel - xp} XP للمستوى التالي</p>
-            </CardContent>
+          <Card className="p-5">
+            <div className="flex items-center gap-3 mb-1"><Flame className="h-5 w-5 text-accent" /><span className="text-sm text-muted-foreground">النقاط</span></div>
+            <div className="font-display text-3xl font-extrabold text-primary">{profile?.xp_points ?? 0}</div>
+            <Progress value={xpInLevel} className="mt-2 h-1.5" />
           </Card>
-          <Card className="glass-card">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-3 mb-2">
-                <BookOpen className="h-5 w-5 text-emerald" />
-                <span className="text-sm font-medium text-muted-foreground">دوراتي</span>
-              </div>
-              <div className="font-display text-2xl font-extrabold text-primary">{enrolledCourses.length}</div>
-            </CardContent>
-          </Card>
-          <Card className="glass-card">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-3 mb-2">
-                <Award className="h-5 w-5 text-gold" />
-                <span className="text-sm font-medium text-muted-foreground">دروس مكتملة</span>
-              </div>
-              <div className="font-display text-2xl font-extrabold text-primary">{progressCount}</div>
-            </CardContent>
+          <Card className="p-5">
+            <div className="flex items-center gap-3 mb-1"><Award className="h-5 w-5 text-accent" /><span className="text-sm text-muted-foreground">الشهادات</span></div>
+            <div className="font-display text-3xl font-extrabold text-primary">{certCount}</div>
           </Card>
         </div>
 
-        {/* === My courses === */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-xl font-bold text-primary">دوراتي</h2>
-            <Link to="/courses">
-              <Button variant="ghost" size="sm" className="gap-1">
-                تصفّح المزيد <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Link>
+        <h2 className="font-display text-xl font-bold text-primary mb-4">دوراتي</h2>
+        {loading ? (
+          <div className="grid md:grid-cols-2 gap-4">
+            {[1, 2].map((i) => <Skeleton key={i} className="h-32" />)}
           </div>
-          {dataLoading ? (
-            <p className="text-muted-foreground text-sm">جارٍ التحميل...</p>
-          ) : enrolledCourses.length === 0 ? (
-            <Card className="glass-card p-10 text-center">
-              <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="font-display font-bold text-lg mb-2">لم تسجل في أي دورة بعد</h3>
-              <p className="text-muted-foreground text-sm mb-4">ابدأ رحلتك باختيار دورة من الكتالوج.</p>
-              <Link to="/courses">
-                <Button className="bg-gradient-gold text-primary font-display font-semibold">تصفّح الدورات</Button>
-              </Link>
-            </Card>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {enrolledCourses.map((c) => (
-                <Link key={c.id} to={`/courses/${c.id}`}>
-                  <Card className="glass-card hover:shadow-xl transition-all hover:-translate-y-1 overflow-hidden cursor-pointer">
-                    <div className="h-24 bg-gradient-hero flex items-center justify-center text-4xl">{c.emoji}</div>
-                    <CardHeader className="pb-2">
-                      <Badge variant="outline" className="text-xs w-fit mb-1">{c.level}</Badge>
-                      <CardTitle className="font-display text-base leading-snug line-clamp-2">{c.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Progress value={0} className="h-1.5" />
-                      <p className="text-xs text-muted-foreground mt-2">ابدأ الدرس الأول</p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+        ) : items.length === 0 ? (
+          <Card className="p-10 text-center">
+            <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+            <p className="text-muted-foreground mb-4">لم تبدأ أي دورة بعد. اختر مساراً وانطلق!</p>
+            <Button onClick={() => navigate("/tracks")} className="bg-gradient-gold text-primary font-display font-bold">استعرض المسارات</Button>
+          </Card>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-4">
+            {items.map((c) => {
+              const pct = c.total_lessons ? Math.round((c.mastered_lessons / c.total_lessons) * 100) : 0;
+              return (
+                <Card key={c.course_id} className="p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl">{c.emoji}</span>
+                      <div>
+                        <h3 className="font-display font-bold text-primary">{c.title}</h3>
+                        <p className="text-xs text-muted-foreground">{c.mastered_lessons} / {c.total_lessons} درس متقن</p>
+                      </div>
+                    </div>
+                  </div>
+                  <Progress value={pct} className="mb-3" />
+                  <div className="flex gap-2">
+                    {c.next_lesson_id ? (
+                      <Button size="sm" onClick={() => navigate(`/lessons/${c.next_lesson_id}`)} className="flex-1 bg-gradient-gold text-primary font-display font-bold">
+                        استمر <ArrowLeft className="mr-2 h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <Button size="sm" variant="outline" disabled className="flex-1">مكتملة ✓</Button>
+                    )}
+                    <Link to={`/courses/${c.slug}`}><Button size="sm" variant="outline">عرض</Button></Link>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </main>
     </div>
   );
 };

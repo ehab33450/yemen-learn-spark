@@ -31,7 +31,19 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) navigate("/dashboard", { replace: true });
+    if (!user) return;
+    (async () => {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("welcomed_at")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (profile && !profile.welcomed_at) {
+        navigate("/welcome", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
+    })();
   }, [user, navigate]);
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -48,7 +60,7 @@ const Auth = () => {
           email: parsed.data.email,
           password: parsed.data.password,
           options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
+            emailRedirectTo: `${window.location.origin}/welcome`,
             data: { display_name: parsed.data.displayName },
           },
         });
@@ -78,7 +90,7 @@ const Auth = () => {
 
   const handleGoogle = async () => {
     setLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/dashboard` });
+    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/welcome` });
     if (result.error) {
       toast.error("تعذّر تسجيل الدخول عبر Google");
       setLoading(false);

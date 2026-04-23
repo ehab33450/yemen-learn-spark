@@ -1,18 +1,39 @@
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { GraduationCap, Sparkles, Trophy, Users, BookOpen, Award, Zap, Heart, Star, Download, Target } from "lucide-react";
-import { tracks } from "@/data/tracks";
-import { courses } from "@/data/courses";
 import { motion } from "framer-motion";
 import { Header } from "@/components/layout/Header";
+import { supabase } from "@/integrations/supabase/client";
+
+const tracks = [
+  { id: "languages", title: "مسار اللغات", subtitle: "English from zero", emoji: "🌍", description: "تعلم الإنجليزية بأفضل المصادر العربية والعالمية." },
+  { id: "awareness", title: "مسار الوعي", subtitle: "Self development", emoji: "🧠", description: "تطوير الذات، إدارة الوقت، العادات، التواصل." },
+  { id: "religious", title: "المسار الديني", subtitle: "Religious sciences", emoji: "📖", description: "علوم القرآن والسيرة والفقه بأسلوب مبسّط." },
+  { id: "tech", title: "المسار التقني", subtitle: "Tech & AI", emoji: "💻", description: "الحاسوب، AI، التصميم، العمل الحر." },
+];
+
+interface FeaturedCourse {
+  id: string; slug: string; title: string; description: string | null;
+  level: string | null; duration: string | null; emoji: string | null;
+}
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } };
 
 const Index = () => {
-  const featuredCourses = courses.slice(0, 4);
   const navigate = useNavigate();
+  const [featuredCourses, setFeaturedCourses] = useState<FeaturedCourse[]>([]);
+  useEffect(() => {
+    supabase
+      .from("courses")
+      .select("id,slug,title,description,level,duration,emoji")
+      .eq("is_published", true)
+      .order("sort_order")
+      .limit(4)
+      .then(({ data }) => setFeaturedCourses(data ?? []));
+  }, []);
 
   return (
     <div className="min-h-screen bg-background font-body">
@@ -73,7 +94,7 @@ const Index = () => {
                     <p className="text-muted-foreground text-sm leading-relaxed">{track.description}</p>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline" onClick={() => navigate(`/courses?track=${track.id}`)} className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors font-display text-sm">استكشف المسار</Button>
+              <Button variant="outline" onClick={() => navigate(`/tracks/${track.id}`)} className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors font-display text-sm">استكشف المسار</Button>
                   </CardFooter>
                 </Card>
               </motion.div>
@@ -126,14 +147,12 @@ const Index = () => {
                   <CardContent className="pb-2">
                     <p className="text-muted-foreground text-xs line-clamp-2">{course.description}</p>
                     <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1"><BookOpen className="h-3 w-3" /> {course.lessonsCount} درس</span>
-                      <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {course.studentsCount} طالب</span>
-                      <span className="flex items-center gap-1"><Star className="h-3 w-3 text-gold" /> {course.rating}</span>
+                      {course.duration && <span className="flex items-center gap-1"><BookOpen className="h-3 w-3" /> {course.duration}</span>}
                     </div>
                   </CardContent>
                   <CardFooter>
                     <Button asChild size="sm" className="w-full bg-gradient-gold text-primary font-display font-semibold hover:opacity-90">
-                      <Link to={`/courses/${course.id}`}>عرض التفاصيل</Link>
+                      <Link to={`/courses/${course.slug}`}>عرض التفاصيل</Link>
                     </Button>
                   </CardFooter>
                 </Card>
