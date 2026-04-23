@@ -1,42 +1,22 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { GraduationCap, Sparkles, Trophy, Users, BookOpen, Award, Zap, Heart, CheckCircle2, Star, Download, Target } from "lucide-react";
+import { GraduationCap, Sparkles, Trophy, Users, BookOpen, Award, Zap, Heart, Star, Download, Target } from "lucide-react";
 import { tracks } from "@/data/tracks";
 import { courses } from "@/data/courses";
 import { motion } from "framer-motion";
+import { Header } from "@/components/layout/Header";
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } };
 
 const Index = () => {
   const featuredCourses = courses.slice(0, 4);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background font-body">
-      {/* === NAVBAR === */}
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg">
-        <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-gold">
-              <GraduationCap className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="font-display font-bold text-primary text-lg">YYL</span>
-              <span className="text-[10px] text-muted-foreground">منصة الشباب اليمني</span>
-            </div>
-          </Link>
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <Link to="/" className="text-foreground hover:text-accent transition-colors">الرئيسية</Link>
-            <Link to="/courses" className="text-muted-foreground hover:text-accent transition-colors">الدورات</Link>
-            <Link to="/about" className="text-muted-foreground hover:text-accent transition-colors">عن المنصة</Link>
-          </nav>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm">تسجيل الدخول</Button>
-            <Button size="sm" className="bg-gradient-gold text-primary font-display font-semibold hover:opacity-90">انضم مجاناً</Button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* === HERO === */}
       <section className="bg-gradient-hero text-primary-foreground py-20 md:py-32 relative overflow-hidden">
@@ -51,8 +31,8 @@ const Index = () => {
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto leading-relaxed">منصة تعليمية مجانية 100% للشباب اليمني. لغات، علوم دينية، ومهارات تقنية وذكاء اصطناعي.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button size="lg" className="bg-gradient-gold text-primary font-display font-bold text-lg hover:opacity-90 px-8">ابدأ التعلم الآن</Button>
-              <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-display">استعرض الدورات</Button>
+              <Button size="lg" onClick={() => navigate("/auth?mode=signup")} className="bg-gradient-gold text-primary font-display font-bold text-lg hover:opacity-90 px-8">ابدأ التعلم الآن</Button>
+              <Button size="lg" variant="outline" onClick={() => navigate("/courses")} className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-display">استعرض الدورات</Button>
             </div>
           </motion.div>
 
@@ -93,7 +73,7 @@ const Index = () => {
                     <p className="text-muted-foreground text-sm leading-relaxed">{track.description}</p>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors font-display text-sm">استكشف المسار</Button>
+                    <Button variant="outline" onClick={() => navigate(`/courses?track=${track.id}`)} className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors font-display text-sm">استكشف المسار</Button>
                   </CardFooter>
                 </Card>
               </motion.div>
@@ -152,7 +132,9 @@ const Index = () => {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button size="sm" className="w-full bg-gradient-gold text-primary font-display font-semibold hover:opacity-90">ابدأ الدورة</Button>
+                    <Button asChild size="sm" className="w-full bg-gradient-gold text-primary font-display font-semibold hover:opacity-90">
+                      <Link to={`/courses/${course.id}`}>عرض التفاصيل</Link>
+                    </Button>
                   </CardFooter>
                 </Card>
               </motion.div>
@@ -170,7 +152,7 @@ const Index = () => {
               <Sparkles className="h-10 w-10 mx-auto mb-4 text-gold" />
               <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">ابدأ رحلتك التعليمية اليوم</h2>
               <p className="text-primary-foreground/80 mb-8 text-lg">انضم لآلاف الشباب اليمني الذين يبنون مستقبلهم معنا. مجاناً وللأبد.</p>
-              <Button size="lg" className="bg-gradient-gold text-primary font-display font-bold text-lg hover:opacity-90 px-10">سجّل مجاناً</Button>
+              <Button size="lg" onClick={() => navigate("/auth?mode=signup")} className="bg-gradient-gold text-primary font-display font-bold text-lg hover:opacity-90 px-10">سجّل مجاناً</Button>
             </div>
           </motion.div>
         </div>
