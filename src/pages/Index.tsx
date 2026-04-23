@@ -31,8 +31,8 @@ const Index = () => {
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto leading-relaxed">منصة تعليمية مجانية 100% للشباب اليمني. لغات، علوم دينية، ومهارات تقنية وذكاء اصطناعي.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button size="lg" className="bg-gradient-gold text-primary font-display font-bold text-lg hover:opacity-90 px-8">ابدأ التعلم الآن</Button>
-              <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-display">استعرض الدورات</Button>
+              <Button size="lg" onClick={() => navigate("/auth?mode=signup")} className="bg-gradient-gold text-primary font-display font-bold text-lg hover:opacity-90 px-8">ابدأ التعلم الآن</Button>
+              <Button size="lg" variant="outline" onClick={() => navigate("/courses")} className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-display">استعرض الدورات</Button>
             </div>
           </motion.div>
 
@@ -73,7 +73,7 @@ const Index = () => {
                     <p className="text-muted-foreground text-sm leading-relaxed">{track.description}</p>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors font-display text-sm">استكشف المسار</Button>
+                    <Button variant="outline" onClick={() => navigate(`/courses?track=${track.id}`)} className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors font-display text-sm">استكشف المسار</Button>
                   </CardFooter>
                 </Card>
               </motion.div>
@@ -132,7 +132,9 @@ const Index = () => {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button size="sm" className="w-full bg-gradient-gold text-primary font-display font-semibold hover:opacity-90">ابدأ الدورة</Button>
+                    <Button asChild size="sm" className="w-full bg-gradient-gold text-primary font-display font-semibold hover:opacity-90">
+                      <Link to={`/courses/${course.id}`}>عرض التفاصيل</Link>
+                    </Button>
                   </CardFooter>
                 </Card>
               </motion.div>
@@ -150,7 +152,7 @@ const Index = () => {
               <Sparkles className="h-10 w-10 mx-auto mb-4 text-gold" />
               <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">ابدأ رحلتك التعليمية اليوم</h2>
               <p className="text-primary-foreground/80 mb-8 text-lg">انضم لآلاف الشباب اليمني الذين يبنون مستقبلهم معنا. مجاناً وللأبد.</p>
-              <Button size="lg" className="bg-gradient-gold text-primary font-display font-bold text-lg hover:opacity-90 px-10">سجّل مجاناً</Button>
+              <Button size="lg" onClick={() => navigate("/auth?mode=signup")} className="bg-gradient-gold text-primary font-display font-bold text-lg hover:opacity-90 px-10">سجّل مجاناً</Button>
             </div>
           </motion.div>
         </div>
