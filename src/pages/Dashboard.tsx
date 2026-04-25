@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Trophy, Award, Flame, BookOpen, ArrowLeft } from "lucide-react";
+import { StreakCard } from "@/components/gamification/StreakCard";
+import { BadgesGrid } from "@/components/gamification/BadgesGrid";
+import { Leaderboard } from "@/components/gamification/Leaderboard";
+import { AITutorWidget } from "@/components/ai/AITutorWidget";
 
 interface CourseProgress {
   course_id: string;
@@ -87,21 +91,24 @@ const Dashboard = () => {
         </h1>
         <p className="text-muted-foreground mb-8">رحلتك تتقدم — استمر!</p>
 
-        <div className="grid sm:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <Card className="p-5">
             <div className="flex items-center gap-3 mb-1"><Trophy className="h-5 w-5 text-accent" /><span className="text-sm text-muted-foreground">المستوى</span></div>
             <div className="font-display text-3xl font-extrabold text-primary">{profile?.level ?? 1}</div>
           </Card>
           <Card className="p-5">
-            <div className="flex items-center gap-3 mb-1"><Flame className="h-5 w-5 text-accent" /><span className="text-sm text-muted-foreground">النقاط</span></div>
+            <div className="flex items-center gap-3 mb-1"><Trophy className="h-5 w-5 text-gold" /><span className="text-sm text-muted-foreground">النقاط</span></div>
             <div className="font-display text-3xl font-extrabold text-primary">{profile?.xp_points ?? 0}</div>
             <Progress value={xpInLevel} className="mt-2 h-1.5" />
           </Card>
+          <StreakCard userId={user.id} />
           <Card className="p-5">
             <div className="flex items-center gap-3 mb-1"><Award className="h-5 w-5 text-accent" /><span className="text-sm text-muted-foreground">الشهادات</span></div>
             <div className="font-display text-3xl font-extrabold text-primary">{certCount}</div>
           </Card>
         </div>
+
+        <div className="mb-8"><BadgesGrid userId={user.id} /></div>
 
         <h2 className="font-display text-xl font-bold text-primary mb-4">دوراتي</h2>
         {loading ? (
@@ -145,7 +152,12 @@ const Dashboard = () => {
             })}
           </div>
         )}
+
+        <div className="mt-8">
+          <Leaderboard currentUserId={user.id} />
+        </div>
       </main>
+      <AITutorWidget />
     </div>
   );
 };
