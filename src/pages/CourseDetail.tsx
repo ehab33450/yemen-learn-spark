@@ -66,6 +66,8 @@ const CourseDetail = () => {
 
   const startCourse = () => {
     if (!user) return navigate("/auth");
+    // Auto-join discussion group for this course
+    if (course) supabase.rpc("join_or_create_discussion_group", { _user_id: user.id, _course_id: course.id });
     if (nextLesson) navigate(`/lessons/${nextLesson.id}`);
   };
 
