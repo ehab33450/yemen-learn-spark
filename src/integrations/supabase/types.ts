@@ -187,6 +187,94 @@ export type Database = {
         }
         Relationships: []
       }
+      discussion_groups: {
+        Row: {
+          capacity: number
+          course_id: string
+          created_at: string
+          id: string
+          member_count: number
+          name: string
+        }
+        Insert: {
+          capacity?: number
+          course_id: string
+          created_at?: string
+          id?: string
+          member_count?: number
+          name: string
+        }
+        Update: {
+          capacity?: number
+          course_id?: string
+          created_at?: string
+          id?: string
+          member_count?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      group_members: {
+        Row: {
+          group_id: string
+          id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "discussion_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_messages: {
+        Row: {
+          content: string
+          created_at: string
+          group_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          group_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          group_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_messages_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "discussion_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_progress: {
         Row: {
           applied: boolean
@@ -537,6 +625,14 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      is_group_member: {
+        Args: { _group_id: string; _user_id: string }
+        Returns: boolean
+      }
+      join_or_create_discussion_group: {
+        Args: { _course_id: string; _user_id: string }
+        Returns: string
       }
       update_user_streak: {
         Args: { _user_id: string }

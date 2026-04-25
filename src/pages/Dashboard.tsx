@@ -12,6 +12,7 @@ import { StreakCard } from "@/components/gamification/StreakCard";
 import { BadgesGrid } from "@/components/gamification/BadgesGrid";
 import { Leaderboard } from "@/components/gamification/Leaderboard";
 import { AITutorWidget } from "@/components/ai/AITutorWidget";
+import { MotivationBanner } from "@/components/motivation/MotivationBanner";
 
 interface CourseProgress {
   course_id: string;
@@ -85,6 +86,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <MotivationBanner />
       <main className="container py-10">
         <h1 className="font-display text-3xl font-extrabold text-primary mb-1">
           مرحباً، {profile?.display_name ?? "صديقي"} 👋
