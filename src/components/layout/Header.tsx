@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, LogOut, LayoutDashboard } from "lucide-react";
+import { GraduationCap, LogOut, LayoutDashboard, Trophy, Users, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -31,13 +31,15 @@ export const Header = () => {
             <GraduationCap className="h-5 w-5 text-primary" />
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="font-display font-bold text-primary text-lg">YYL</span>
-            <span className="text-[10px] text-muted-foreground">منصة الشباب اليمني</span>
+            <span className="font-display font-bold text-primary text-lg">نحو يمن أفضل</span>
+            <span className="text-[10px] text-muted-foreground">تعلّم. تواصل. ارتقِ.</span>
           </div>
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           <Link to="/" className="text-foreground hover:text-accent transition-colors">الرئيسية</Link>
           <Link to="/tracks" className="text-muted-foreground hover:text-accent transition-colors">المسارات</Link>
+          <Link to="/leaderboard" className="text-muted-foreground hover:text-accent transition-colors">لوحة الشرف</Link>
+          <Link to="/about" className="text-muted-foreground hover:text-accent transition-colors">من نحن</Link>
           {user && (
             <Link to="/dashboard" className="text-muted-foreground hover:text-accent transition-colors">لوحتي</Link>
           )}
@@ -58,8 +60,17 @@ export const Header = () => {
                 <DropdownMenuItem onClick={() => navigate("/dashboard")}>
                   <LayoutDashboard className="ml-2 h-4 w-4" /> لوحتي
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/leaderboard")}>
+                  <Trophy className="ml-2 h-4 w-4" /> لوحة الشرف
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/groups")}>
+                  <Users className="ml-2 h-4 w-4" /> مجموعاتي
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/certificates")}>
                   <LayoutDashboard className="ml-2 h-4 w-4" /> شهاداتي
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/about")}>
+                  <Info className="ml-2 h-4 w-4" /> من نحن
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="ml-2 h-4 w-4" /> تسجيل الخروج
