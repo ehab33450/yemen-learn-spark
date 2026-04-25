@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, BookOpen, RefreshCw, Sparkles, ExternalLink, Award } from "lucide-react";
+import { AITutorWidget } from "@/components/ai/AITutorWidget";
 
 interface Lesson {
   id: string; title: string; description: string | null;
@@ -115,6 +116,26 @@ const LessonView = () => {
         const newXp = profile.xp_points + 10;
         const newLevel = Math.floor(newXp / 100) + 1;
         await supabase.from("profiles").update({ xp_points: newXp, level: newLevel }).eq("user_id", user.id);
+
+        // Streak + badges
+        const { data: streakRows } = await supabase.rpc("update_user_streak", { _user_id: user.id });
+        const cur = streakRows?.[0]?.current_streak ?? 0;
+
+        const masteredCountRes = await supabase
+          .from("lesson_progress")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .gte("mastery_percent", 80);
+
+        if ((masteredCountRes.count ?? 0) === 1) {
+          await supabase.rpc("award_badge", { _user_id: user.id, _badge_code: "first_lesson" });
+          toast.success("🎯 شارة جديدة: الخطوة الأولى!");
+        }
+        if (cur >= 3)  await supabase.rpc("award_badge", { _user_id: user.id, _badge_code: "streak_3"  }).then(({ data }) => data && toast.success("🔥 شارة: ثلاثة أيام متتالية!"));
+        if (cur >= 7)  await supabase.rpc("award_badge", { _user_id: user.id, _badge_code: "streak_7"  }).then(({ data }) => data && toast.success("⚡ شارة: أسبوع كامل!"));
+        if (cur >= 30) await supabase.rpc("award_badge", { _user_id: user.id, _badge_code: "streak_30" }).then(({ data }) => data && toast.success("🏆 شارة: شهر من الإنجاز!"));
+        if (newXp >= 500)  await supabase.rpc("award_badge", { _user_id: user.id, _badge_code: "xp_500"  }).then(({ data }) => data && toast.success("⭐ شارة: محارب التعلم!"));
+        if (newXp >= 1000) await supabase.rpc("award_badge", { _user_id: user.id, _badge_code: "xp_1000" }).then(({ data }) => data && toast.success("👑 شارة: بطل التعلم!"));
       }
       toast.success("🎉 أتقنت الدرس! +10 نقاط");
 
@@ -131,6 +152,7 @@ const LessonView = () => {
           const newLevel = Math.floor(newXp / 100) + 1;
           await supabase.from("profiles").update({ xp_points: newXp, level: newLevel }).eq("user_id", user.id);
         }
+        await supabase.rpc("award_badge", { _user_id: user.id, _badge_code: "first_course" });
         toast.success("🏆 أكملت الدورة! +100 نقطة وحصلت على شهادة!");
       }
     }
@@ -325,6 +347,7 @@ const LessonView = () => {
           )}
         </div>
       </main>
+      <AITutorWidget lessonContext={{ title: lesson.title, description: lesson.description }} />
     </div>
   );
 };
