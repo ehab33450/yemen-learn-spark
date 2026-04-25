@@ -14,6 +14,9 @@ import LessonView from "./pages/LessonView.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Welcome from "./pages/Welcome.tsx";
 import Certificates from "./pages/Certificates.tsx";
+import About from "./pages/About.tsx";
+import LeaderboardPage from "./pages/LeaderboardPage.tsx";
+import Groups from "./pages/Groups.tsx";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +38,9 @@ const App = () => (
             <Route path="/lessons/:id" element={<LessonView />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/certificates" element={<Certificates />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route path="/groups" element={<Groups />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
