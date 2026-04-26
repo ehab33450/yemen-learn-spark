@@ -58,11 +58,21 @@ const Index = () => {
               واحصل على شهادات تفتح لك أبواباً جديدة.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button size="lg" onClick={() => navigate("/auth?mode=signup")} className="bg-gradient-gold text-primary font-display font-bold text-lg hover:opacity-90 px-8">
+              <Button
+                size="lg"
+                onClick={() => navigate("/auth?mode=signup")}
+                className="bg-gradient-gold text-primary font-display font-extrabold text-lg hover:opacity-90 px-8 gap-2"
+              >
+                <Sparkles className="h-5 w-5 text-primary" />
                 ابدأ رحلتك الآن
               </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate("/about")} className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-display">
-                <Play className="ml-2 h-4 w-4" /> تعرّف علينا
+              <Button
+                size="lg"
+                onClick={() => navigate("/about")}
+                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-display font-bold text-lg px-8 gap-2 shadow-elegant"
+              >
+                <Play className="h-5 w-5 text-primary" fill="currentColor" />
+                تعرّف علينا
               </Button>
             </div>
           </motion.div>
