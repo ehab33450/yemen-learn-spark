@@ -99,14 +99,14 @@ const Index = () => {
         <div className="container relative z-10 mt-14">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{duration:0.6, delay:0.3}} className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto">
             {[
-              { icon: BookOpen, label: "+50 دورة عربية" },
-              { icon: Users, label: "مجموعات نقاش" },
-              { icon: Trophy, label: "لوحة شرف" },
-              { icon: Award, label: "شهادات إنجاز" },
+              { icon: BookOpen, label: "دروس عربية مختارة", color: "text-gold" },
+              { icon: Users, label: "مجموعات نقاش 10×10", color: "text-gold" },
+              { icon: Trophy, label: "تحديات وشارات", color: "text-gold" },
+              { icon: Award, label: "شهادات إنجاز", color: "text-gold" },
             ].map((s, i) => (
-              <div key={i} className="text-center p-3 rounded-xl bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10">
-                <s.icon className="h-5 w-5 mx-auto mb-1.5 text-gold" />
-                <span className="font-display font-semibold text-sm">{s.label}</span>
+              <div key={i} className="text-center p-4 rounded-2xl bg-primary-foreground/8 backdrop-blur-sm border border-gold/20 hover:bg-primary-foreground/12 transition-colors">
+                <s.icon className={`h-6 w-6 mx-auto mb-2 ${s.color}`} />
+                <span className="font-display font-semibold text-xs md:text-sm leading-tight block">{s.label}</span>
               </div>
             ))}
           </motion.div>
