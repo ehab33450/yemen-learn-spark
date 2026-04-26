@@ -194,6 +194,7 @@ const LessonView = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container py-8 max-w-4xl">
+        <PersonalGreeting context="lesson" />
         {courseSlug && (
           <Link to={`/courses/${courseSlug}`} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-accent mb-4">
             <ArrowLeft className="h-4 w-4" /> رجوع للدورة
