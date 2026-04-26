@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, LogOut, LayoutDashboard, Trophy, Users, Info } from "lucide-react";
+import { GraduationCap, LogOut, LayoutDashboard, Trophy, Users, Info, Medal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -65,6 +65,9 @@ export const Header = () => {
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/groups")}>
                   <Users className="ml-2 h-4 w-4" /> مجموعاتي
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/achievements")}>
+                  <Medal className="ml-2 h-4 w-4" /> إنجازاتي
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/certificates")}>
                   <LayoutDashboard className="ml-2 h-4 w-4" /> شهاداتي

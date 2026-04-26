@@ -193,6 +193,7 @@ export type Database = {
           course_id: string
           created_at: string
           id: string
+          level_band: number
           member_count: number
           name: string
         }
@@ -201,6 +202,7 @@ export type Database = {
           course_id: string
           created_at?: string
           id?: string
+          level_band?: number
           member_count?: number
           name: string
         }
@@ -209,6 +211,7 @@ export type Database = {
           course_id?: string
           created_at?: string
           id?: string
+          level_band?: number
           member_count?: number
           name?: string
         }
@@ -452,6 +455,48 @@ export type Database = {
           },
         ]
       }
+      monthly_challenges: {
+        Row: {
+          completed: boolean
+          courses_done: number
+          courses_target: number
+          created_at: string
+          id: string
+          month_start: string
+          reward_xp: number
+          updated_at: string
+          user_id: string
+          xp_earned: number
+          xp_target: number
+        }
+        Insert: {
+          completed?: boolean
+          courses_done?: number
+          courses_target?: number
+          created_at?: string
+          id?: string
+          month_start: string
+          reward_xp?: number
+          updated_at?: string
+          user_id: string
+          xp_earned?: number
+          xp_target?: number
+        }
+        Update: {
+          completed?: boolean
+          courses_done?: number
+          courses_target?: number
+          created_at?: string
+          id?: string
+          month_start?: string
+          reward_xp?: number
+          updated_at?: string
+          user_id?: string
+          xp_earned?: number
+          xp_target?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -610,6 +655,54 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_challenges: {
+        Row: {
+          completed: boolean
+          created_at: string
+          id: string
+          lessons_done: number
+          lessons_target: number
+          reward_xp: number
+          streak_reached: number
+          streak_target: number
+          updated_at: string
+          user_id: string
+          week_start: string
+          xp_earned: number
+          xp_target: number
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          lessons_done?: number
+          lessons_target?: number
+          reward_xp?: number
+          streak_reached?: number
+          streak_target?: number
+          updated_at?: string
+          user_id: string
+          week_start: string
+          xp_earned?: number
+          xp_target?: number
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          lessons_done?: number
+          lessons_target?: number
+          reward_xp?: number
+          streak_reached?: number
+          streak_target?: number
+          updated_at?: string
+          user_id?: string
+          week_start?: string
+          xp_earned?: number
+          xp_target?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -641,6 +734,7 @@ export type Database = {
           longest_streak: number
         }[]
       }
+      user_level_band: { Args: { _user_id: string }; Returns: number }
     }
     Enums: {
       app_role: "student" | "teacher" | "admin"

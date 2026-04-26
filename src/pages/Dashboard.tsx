@@ -13,6 +13,7 @@ import { BadgesGrid } from "@/components/gamification/BadgesGrid";
 import { Leaderboard } from "@/components/gamification/Leaderboard";
 import { AITutorWidget } from "@/components/ai/AITutorWidget";
 import { MotivationBanner } from "@/components/motivation/MotivationBanner";
+import { ChallengesCard } from "@/components/gamification/ChallengesCard";
 
 interface CourseProgress {
   course_id: string;
@@ -111,6 +112,20 @@ const Dashboard = () => {
         </div>
 
         <div className="mb-8"><BadgesGrid userId={user.id} /></div>
+
+        <div className="mb-8">
+          <h2 className="font-display text-xl font-bold text-primary mb-4">تحديات الأسبوع والشهر</h2>
+          <ChallengesCard userId={user.id} />
+        </div>
+
+        <div className="mb-8 flex flex-wrap gap-3">
+          <Button variant="outline" onClick={() => navigate("/achievements")} className="gap-2">
+            <Award className="h-4 w-4" /> صفحة إنجازاتي
+          </Button>
+          <Button variant="outline" onClick={() => navigate("/groups")} className="gap-2">
+            <Trophy className="h-4 w-4" /> مجموعاتي للنقاش
+          </Button>
+        </div>
 
         <h2 className="font-display text-xl font-bold text-primary mb-4">دوراتي</h2>
         {loading ? (

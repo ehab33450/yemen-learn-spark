@@ -8,6 +8,7 @@ import { Trophy, Medal, Crown, Flame } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { MotivationBanner } from "@/components/motivation/MotivationBanner";
+import { PersonalGreeting } from "@/components/motivation/PersonalGreeting";
 
 interface Row { user_id: string; display_name: string; xp_points: number; level: number; avatar_url: string | null; }
 
@@ -35,6 +36,7 @@ const LeaderboardPage = () => {
       <Header />
       <MotivationBanner />
       <main className="container py-10 max-w-4xl">
+        <PersonalGreeting context="leaderboard" />
         <div className="text-center mb-8">
           <Trophy className="h-12 w-12 text-gold mx-auto mb-3 animate-pulse-gold" />
           <h1 className="font-display text-4xl font-extrabold text-primary mb-2">لوحة الشرف</h1>

@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft } from "lucide-react";
+import { PersonalGreeting } from "@/components/motivation/PersonalGreeting";
+import { MotivationBanner } from "@/components/motivation/MotivationBanner";
 
 interface Track {
   id: string;
@@ -43,7 +45,9 @@ const Tracks = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <MotivationBanner />
       <main className="container py-12">
+        <PersonalGreeting context="tracks" />
         <div className="text-center mb-12">
           <h1 className="font-display text-4xl font-extrabold text-primary mb-3">المسارات التعليمية</h1>
           <p className="text-muted-foreground">اختر مسارك وابدأ رحلتك الآن</p>
