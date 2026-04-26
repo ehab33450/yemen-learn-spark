@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, Clock, PlayCircle, CheckCircle2, Calendar, Target } from "lucide-react";
 import { PersonalGreeting } from "@/components/motivation/PersonalGreeting";
+import { CourseGroupCard } from "@/components/groups/CourseGroupCard";
 
 interface Course {
   id: string; slug: string; title: string; description: string | null;
@@ -181,7 +182,11 @@ const CourseDetail = () => {
 
           {/* Sidebar: Learning Plan */}
           <aside>
-            <Card className="p-6 sticky top-20">
+            <div className="sticky top-20 space-y-5">
+            {user && course && (
+              <CourseGroupCard courseId={course.id} userId={user.id} />
+            )}
+            <Card className="p-6">
               <h2 className="font-display text-lg font-bold text-primary mb-4 flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-accent" /> خطة التعلم
               </h2>
@@ -200,6 +205,7 @@ const CourseDetail = () => {
                 <p className="text-sm text-muted-foreground">سيتم إضافة خطة قريباً.</p>
               )}
             </Card>
+            </div>
           </aside>
         </div>
       </main>
