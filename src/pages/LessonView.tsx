@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, BookOpen, RefreshCw, Sparkles, ExternalLink, Award } from "lucide-react";
 import { AITutorWidget } from "@/components/ai/AITutorWidget";
+import { PersonalGreeting } from "@/components/motivation/PersonalGreeting";
 
 interface Lesson {
   id: string; title: string; description: string | null;
@@ -116,6 +117,18 @@ const LessonView = () => {
         const newXp = profile.xp_points + 10;
         const newLevel = Math.floor(newXp / 100) + 1;
         await supabase.from("profiles").update({ xp_points: newXp, level: newLevel }).eq("user_id", user.id);
+
+        // Bump monthly challenge XP
+        const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+        const monthIso = monthStart.toISOString().slice(0,10);
+        const { data: existingM } = await supabase.from("monthly_challenges")
+          .select("xp_earned").eq("user_id", user.id).eq("month_start", monthIso).maybeSingle();
+        if (existingM) {
+          await supabase.from("monthly_challenges").update({ xp_earned: (existingM.xp_earned ?? 0) + 10 })
+            .eq("user_id", user.id).eq("month_start", monthIso);
+        } else {
+          await supabase.from("monthly_challenges").insert({ user_id: user.id, month_start: monthIso, xp_earned: 10 });
+        }
 
         // Streak + badges
         const { data: streakRows } = await supabase.rpc("update_user_streak", { _user_id: user.id });
