@@ -34,7 +34,7 @@ const About = () => {
             <div className="mx-auto">
               <img
                 src={founderImg}
-                alt="إيهاب المزلم — مؤسّس منصة نحو يمن أفضل"
+                alt="إيهاب المزلم — مؤسّس منصة يمن أفضل"
                 width={280}
                 height={280}
                 className="rounded-2xl shadow-elegant w-[260px] h-[260px] object-cover ring-4 ring-gold/30"

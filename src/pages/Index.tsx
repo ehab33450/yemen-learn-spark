@@ -50,7 +50,7 @@ const Index = () => {
           <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{duration: 0.6}}>
             <Badge className="mb-5 bg-gold/20 text-gold border-gold/30 font-display">🇾🇪 صناعة يمنية</Badge>
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-5">
-              <span className="text-gradient-gold">نحو يمن أفضل</span><br />
+              <span className="text-gradient-gold">يمن أفضل</span><br />
               يبدأ بك أنت.
             </h1>
             <p className="text-lg text-primary-foreground/80 mb-7 leading-relaxed">
@@ -58,11 +58,21 @@ const Index = () => {
               واحصل على شهادات تفتح لك أبواباً جديدة.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button size="lg" onClick={() => navigate("/auth?mode=signup")} className="bg-gradient-gold text-primary font-display font-bold text-lg hover:opacity-90 px-8">
+              <Button
+                size="lg"
+                onClick={() => navigate("/auth?mode=signup")}
+                className="bg-gradient-gold text-primary font-display font-extrabold text-lg hover:opacity-90 px-8 gap-2"
+              >
+                <Sparkles className="h-5 w-5 text-primary" />
                 ابدأ رحلتك الآن
               </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate("/about")} className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-display">
-                <Play className="ml-2 h-4 w-4" /> تعرّف علينا
+              <Button
+                size="lg"
+                onClick={() => navigate("/about")}
+                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-display font-bold text-lg px-8 gap-2 shadow-elegant"
+              >
+                <Play className="h-5 w-5 text-primary" fill="currentColor" />
+                تعرّف علينا
               </Button>
             </div>
           </motion.div>
@@ -89,14 +99,14 @@ const Index = () => {
         <div className="container relative z-10 mt-14">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{duration:0.6, delay:0.3}} className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto">
             {[
-              { icon: BookOpen, label: "+50 دورة عربية" },
-              { icon: Users, label: "مجموعات نقاش" },
-              { icon: Trophy, label: "لوحة شرف" },
-              { icon: Award, label: "شهادات إنجاز" },
+              { icon: BookOpen, label: "دروس عربية مختارة", color: "text-gold" },
+              { icon: Users, label: "مجموعات نقاش 10×10", color: "text-gold" },
+              { icon: Trophy, label: "تحديات وشارات", color: "text-gold" },
+              { icon: Award, label: "شهادات إنجاز", color: "text-gold" },
             ].map((s, i) => (
-              <div key={i} className="text-center p-3 rounded-xl bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10">
-                <s.icon className="h-5 w-5 mx-auto mb-1.5 text-gold" />
-                <span className="font-display font-semibold text-sm">{s.label}</span>
+              <div key={i} className="text-center p-4 rounded-2xl bg-primary-foreground/8 backdrop-blur-sm border border-gold/20 hover:bg-primary-foreground/12 transition-colors">
+                <s.icon className={`h-6 w-6 mx-auto mb-2 ${s.color}`} />
+                <span className="font-display font-semibold text-xs md:text-sm leading-tight block">{s.label}</span>
               </div>
             ))}
           </motion.div>
@@ -243,13 +253,13 @@ const Index = () => {
                 <GraduationCap className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-display font-bold text-lg">نحو يمن أفضل</h3>
+                <h3 className="font-display font-bold text-lg">يمن أفضل</h3>
                 <p className="text-sm text-primary-foreground/60">منصة تعلّم بناها يمنيون لليمنيين.</p>
               </div>
             </div>
             <div className="flex items-center gap-1 text-sm text-primary-foreground/50">
               <Heart className="h-4 w-4 text-accent" />
-              <span>© 2025 نحو يمن أفضل. صُنع بـ ❤️ في اليمن.</span>
+              <span>© 2025 يمن أفضل. صُنع بـ ❤️ في اليمن.</span>
             </div>
           </div>
         </div>
