@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, Clock, PlayCircle, CheckCircle2, Calendar, Target } from "lucide-react";
+import { PersonalGreeting } from "@/components/motivation/PersonalGreeting";
 
 interface Course {
   id: string; slug: string; title: string; description: string | null;
@@ -85,6 +86,7 @@ const CourseDetail = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container py-10">
+        <PersonalGreeting context="course" />
         <Link to="/tracks" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-accent mb-6">
           <ArrowLeft className="h-4 w-4" /> رجوع
         </Link>

@@ -10,6 +10,7 @@ import { Users, Send, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { MotivationBanner } from "@/components/motivation/MotivationBanner";
+import { PersonalGreeting } from "@/components/motivation/PersonalGreeting";
 import { toast } from "@/hooks/use-toast";
 
 interface MyGroup { group_id: string; name: string; member_count: number; course_title: string; course_slug: string; }
@@ -88,12 +89,14 @@ const Groups = () => {
       <Header />
       <MotivationBanner />
       <main className="container py-8">
+        <PersonalGreeting context="groups" />
         <div className="mb-6">
           <h1 className="font-display text-3xl font-extrabold text-primary mb-1 flex items-center gap-2">
             <Users className="h-7 w-7 text-accent" />
             مجموعات النقاش
           </h1>
           <p className="text-muted-foreground text-sm">تواصل مع زملائك في نفس الدورة (10 طلاب لكل مجموعة)</p>
+          <p className="text-xs text-muted-foreground mt-1">يتم تجميع الطلاب تلقائياً حسب <span className="text-accent font-semibold">مستواهم</span> ليكون النقاش متجانساً.</p>
         </div>
 
         {loading ? (
