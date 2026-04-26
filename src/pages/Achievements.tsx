@@ -79,7 +79,7 @@ const Achievements = () => {
                 </Avatar>
                 <div className="text-center sm:text-right flex-1">
                   <h1 className="font-display text-3xl font-extrabold mb-1">{profile?.display_name}</h1>
-                  <p className="text-primary-foreground/70 text-sm mb-3">طالب في منصة نحو يمن أفضل 🇾🇪</p>
+                  <p className="text-primary-foreground/70 text-sm mb-3">طالب في منصة يمن أفضل 🇾🇪</p>
                   <div className="flex flex-wrap justify-center sm:justify-start gap-2">
                     <span className="px-3 py-1 rounded-full bg-gold/20 text-gold text-sm font-display font-bold flex items-center gap-1">
                       <Trophy className="h-4 w-4" /> المستوى {profile?.level}

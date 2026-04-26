@@ -50,7 +50,7 @@ const Index = () => {
           <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{duration: 0.6}}>
             <Badge className="mb-5 bg-gold/20 text-gold border-gold/30 font-display">🇾🇪 صناعة يمنية</Badge>
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-5">
-              <span className="text-gradient-gold">نحو يمن أفضل</span><br />
+              <span className="text-gradient-gold">يمن أفضل</span><br />
               يبدأ بك أنت.
             </h1>
             <p className="text-lg text-primary-foreground/80 mb-7 leading-relaxed">
@@ -243,13 +243,13 @@ const Index = () => {
                 <GraduationCap className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-display font-bold text-lg">نحو يمن أفضل</h3>
+                <h3 className="font-display font-bold text-lg">يمن أفضل</h3>
                 <p className="text-sm text-primary-foreground/60">منصة تعلّم بناها يمنيون لليمنيين.</p>
               </div>
             </div>
             <div className="flex items-center gap-1 text-sm text-primary-foreground/50">
               <Heart className="h-4 w-4 text-accent" />
-              <span>© 2025 نحو يمن أفضل. صُنع بـ ❤️ في اليمن.</span>
+              <span>© 2025 يمن أفضل. صُنع بـ ❤️ في اليمن.</span>
             </div>
           </div>
         </div>

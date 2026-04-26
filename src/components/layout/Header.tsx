@@ -31,7 +31,7 @@ export const Header = () => {
             <GraduationCap className="h-5 w-5 text-primary" />
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="font-display font-bold text-primary text-lg">نحو يمن أفضل</span>
+            <span className="font-display font-bold text-primary text-lg">يمن أفضل</span>
             <span className="text-[10px] text-muted-foreground">تعلّم. تواصل. ارتقِ.</span>
           </div>
         </Link>

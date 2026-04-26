@@ -40,7 +40,7 @@ const LeaderboardPage = () => {
         <div className="text-center mb-8">
           <Trophy className="h-12 w-12 text-gold mx-auto mb-3 animate-pulse-gold" />
           <h1 className="font-display text-4xl font-extrabold text-primary mb-2">لوحة الشرف</h1>
-          <p className="text-muted-foreground">أبطال التعلّم في منصة نحو يمن أفضل</p>
+          <p className="text-muted-foreground">أبطال التعلّم في منصة يمن أفضل</p>
           {myRank > 0 && (
             <p className="mt-3 text-sm font-display">ترتيبك الحالي: <span className="font-bold text-accent">#{myRank}</span></p>
           )}
