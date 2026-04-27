@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, BookOpen, RefreshCw, Sparkles, ExternalLink, Award } from "lucide-react";
 import { AITutorWidget } from "@/components/ai/AITutorWidget";
 import { PersonalGreeting } from "@/components/motivation/PersonalGreeting";
+import { PracticalTask } from "@/components/lesson/PracticalTask";
 
 interface Lesson {
   id: string; title: string; description: string | null;
@@ -19,6 +20,9 @@ interface Lesson {
   example_text: string | null; extra_links: any;
   duration_minutes: number | null;
   module_id: string;
+  practical_task_type: string | null;
+  practical_task_prompt: string | null;
+  practical_task_min_chars: number | null;
 }
 interface Quiz { id: string; question: string; options: string[]; correct_index: number; }
 interface ProgressRow {
@@ -41,6 +45,7 @@ const LessonView = () => {
   const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [showQuizResult, setShowQuizResult] = useState(false);
+  const [taskDone, setTaskDone] = useState(false);
 
   useEffect(() => { if (!authLoading && !user) navigate("/auth"); }, [authLoading, user, navigate]);
 
@@ -81,6 +86,11 @@ const LessonView = () => {
         .select("watched,read,reviewed,applied,quiz_score,mastery_percent")
         .eq("user_id", user.id).eq("lesson_id", id).maybeSingle();
       if (prog) setProgress(prog as ProgressRow);
+
+      const { data: sub } = await supabase
+        .from("lesson_task_submissions")
+        .select("id").eq("user_id", user.id).eq("lesson_id", id).maybeSingle();
+      setTaskDone(!!sub);
 
       setAnswers({});
       setShowQuizResult(false);
@@ -333,6 +343,18 @@ const LessonView = () => {
           </div>
         </Card>
 
+        {/* Practical task — required to advance */}
+        {user && lesson.practical_task_type && lesson.practical_task_type !== "none" && (
+          <PracticalTask
+            lessonId={lesson.id}
+            userId={user.id}
+            taskType={lesson.practical_task_type}
+            prompt={lesson.practical_task_prompt}
+            minChars={lesson.practical_task_min_chars ?? 30}
+            onCompleted={() => { setTaskDone(true); saveProgress({ applied: true }); }}
+          />
+        )}
+
         {!mastered && progress.mastery_percent > 0 && progress.mastery_percent < 80 && (
           <Card className="p-4 mb-6 bg-accent/10 border-accent/30">
             <p className="text-sm flex items-center gap-2"><RefreshCw className="h-4 w-4 text-accent" /> راجع هذا الدرس مرة أخرى لتصل إلى الإتقان (80%).</p>
@@ -353,7 +375,17 @@ const LessonView = () => {
             </Button>
           ) : <span />}
           {next ? (
-            <Button onClick={() => navigate(`/lessons/${next.id}`)} className="bg-gradient-gold text-primary font-display font-bold">
+            <Button
+              onClick={() => {
+                if (lesson.practical_task_type && lesson.practical_task_type !== "none" && !taskDone) {
+                  toast.error("سلّم المهمة العملية أولًا قبل الانتقال للدرس التالي");
+                  return;
+                }
+                navigate(`/lessons/${next.id}`);
+              }}
+              className="bg-gradient-gold text-primary font-display font-bold"
+              disabled={!!lesson.practical_task_type && lesson.practical_task_type !== "none" && !taskDone}
+            >
               الدرس التالي <ArrowLeft className="mr-2 h-4 w-4" />
             </Button>
           ) : courseSlug && (
