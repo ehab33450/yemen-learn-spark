@@ -373,6 +373,39 @@ export type Database = {
           },
         ]
       }
+      lesson_task_submissions: {
+        Row: {
+          audio_url: string | null
+          created_at: string
+          id: string
+          lesson_id: string
+          task_type: string
+          text_answer: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          audio_url?: string | null
+          created_at?: string
+          id?: string
+          lesson_id: string
+          task_type: string
+          text_answer?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          audio_url?: string | null
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          task_type?: string
+          text_answer?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lessons: {
         Row: {
           created_at: string
@@ -382,6 +415,9 @@ export type Database = {
           extra_links: Json | null
           id: string
           module_id: string
+          practical_task_min_chars: number | null
+          practical_task_prompt: string | null
+          practical_task_type: string | null
           sort_order: number
           text_content: string | null
           title: string
@@ -395,6 +431,9 @@ export type Database = {
           extra_links?: Json | null
           id?: string
           module_id: string
+          practical_task_min_chars?: number | null
+          practical_task_prompt?: string | null
+          practical_task_type?: string | null
           sort_order?: number
           text_content?: string | null
           title: string
@@ -408,6 +447,9 @@ export type Database = {
           extra_links?: Json | null
           id?: string
           module_id?: string
+          practical_task_min_chars?: number | null
+          practical_task_prompt?: string | null
+          practical_task_type?: string | null
           sort_order?: number
           text_content?: string | null
           title?: string
