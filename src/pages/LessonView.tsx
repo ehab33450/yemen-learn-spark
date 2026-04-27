@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, BookOpen, RefreshCw, Sparkles, ExternalLink, Award } from "lucide-react";
 import { AITutorWidget } from "@/components/ai/AITutorWidget";
 import { PersonalGreeting } from "@/components/motivation/PersonalGreeting";
+import { PracticalTask } from "@/components/lesson/PracticalTask";
 
 interface Lesson {
   id: string; title: string; description: string | null;
@@ -19,6 +20,9 @@ interface Lesson {
   example_text: string | null; extra_links: any;
   duration_minutes: number | null;
   module_id: string;
+  practical_task_type: string | null;
+  practical_task_prompt: string | null;
+  practical_task_min_chars: number | null;
 }
 interface Quiz { id: string; question: string; options: string[]; correct_index: number; }
 interface ProgressRow {
@@ -41,6 +45,7 @@ const LessonView = () => {
   const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [showQuizResult, setShowQuizResult] = useState(false);
+  const [taskDone, setTaskDone] = useState(false);
 
   useEffect(() => { if (!authLoading && !user) navigate("/auth"); }, [authLoading, user, navigate]);
 
@@ -81,6 +86,11 @@ const LessonView = () => {
         .select("watched,read,reviewed,applied,quiz_score,mastery_percent")
         .eq("user_id", user.id).eq("lesson_id", id).maybeSingle();
       if (prog) setProgress(prog as ProgressRow);
+
+      const { data: sub } = await supabase
+        .from("lesson_task_submissions")
+        .select("id").eq("user_id", user.id).eq("lesson_id", id).maybeSingle();
+      setTaskDone(!!sub);
 
       setAnswers({});
       setShowQuizResult(false);
