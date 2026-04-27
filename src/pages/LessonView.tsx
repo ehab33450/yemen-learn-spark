@@ -343,6 +343,18 @@ const LessonView = () => {
           </div>
         </Card>
 
+        {/* Practical task — required to advance */}
+        {user && lesson.practical_task_type && lesson.practical_task_type !== "none" && (
+          <PracticalTask
+            lessonId={lesson.id}
+            userId={user.id}
+            taskType={lesson.practical_task_type}
+            prompt={lesson.practical_task_prompt}
+            minChars={lesson.practical_task_min_chars ?? 30}
+            onCompleted={() => { setTaskDone(true); saveProgress({ applied: true }); }}
+          />
+        )}
+
         {!mastered && progress.mastery_percent > 0 && progress.mastery_percent < 80 && (
           <Card className="p-4 mb-6 bg-accent/10 border-accent/30">
             <p className="text-sm flex items-center gap-2"><RefreshCw className="h-4 w-4 text-accent" /> راجع هذا الدرس مرة أخرى لتصل إلى الإتقان (80%).</p>
@@ -363,7 +375,17 @@ const LessonView = () => {
             </Button>
           ) : <span />}
           {next ? (
-            <Button onClick={() => navigate(`/lessons/${next.id}`)} className="bg-gradient-gold text-primary font-display font-bold">
+            <Button
+              onClick={() => {
+                if (lesson.practical_task_type && lesson.practical_task_type !== "none" && !taskDone) {
+                  toast.error("سلّم المهمة العملية أولًا قبل الانتقال للدرس التالي");
+                  return;
+                }
+                navigate(`/lessons/${next.id}`);
+              }}
+              className="bg-gradient-gold text-primary font-display font-bold"
+              disabled={!!lesson.practical_task_type && lesson.practical_task_type !== "none" && !taskDone}
+            >
               الدرس التالي <ArrowLeft className="mr-2 h-4 w-4" />
             </Button>
           ) : courseSlug && (
