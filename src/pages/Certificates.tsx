@@ -62,16 +62,30 @@ h2{font-size:28px;margin:30px 0 10px}
 p{font-size:18px;line-height:1.8;margin:6px 0}
 .name{font-size:36px;font-weight:bold;color:#1a3a5c;margin:20px 0;border-bottom:2px solid #c8a050;display:inline-block;padding:0 30px 8px}
 .date{margin-top:30px;color:#666;font-size:14px}
+.signature{margin-top:40px;display:flex;justify-content:space-between;align-items:flex-end;gap:30px}
+.sig-block{text-align:center;flex:1}
+.sig-line{border-top:2px solid #1a3a5c;padding-top:6px;font-size:14px;color:#1a3a5c;font-weight:bold}
+.sig-name{font-family:'Brush Script MT',cursive;font-size:28px;color:#1a3a5c;margin-bottom:4px}
 button{margin-top:20px;padding:10px 20px;background:#c8a050;color:#fff;border:0;border-radius:6px;cursor:pointer}
 @media print{button{display:none}}
 </style></head><body>
 <div class="cert">
   <h1>🏆 شهادة إتمام</h1>
-  <p>تشهد منصة الشباب اليمني للتعلم المجاني بأن</p>
+  <p>تشهد منصة <strong>يمن أفضل</strong> للتعلم المجاني بأن</p>
   <div class="name">${profileName}</div>
   <p>قد أكمل بنجاح ${c.kind === "course" ? "دورة" : "مسار"}</p>
   <h2>${title}</h2>
   <p class="date">تاريخ الإصدار: ${date}</p>
+  <div class="signature">
+    <div class="sig-block">
+      <div class="sig-name">إيهاب المزلّم</div>
+      <div class="sig-line">المؤسس — منصة يمن أفضل</div>
+    </div>
+    <div class="sig-block">
+      <div class="sig-name">${profileName}</div>
+      <div class="sig-line">الطالب</div>
+    </div>
+  </div>
   <button onclick="window.print()">طباعة / حفظ PDF</button>
 </div></body></html>`);
     w.document.close();
