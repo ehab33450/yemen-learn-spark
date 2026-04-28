@@ -44,7 +44,6 @@ const LessonView = () => {
   const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [showQuizResult, setShowQuizResult] = useState(false);
-  const [taskDone, setTaskDone] = useState(false);
 
   useEffect(() => { if (!authLoading && !user) navigate("/auth"); }, [authLoading, user, navigate]);
 
@@ -85,11 +84,6 @@ const LessonView = () => {
         .select("watched,read,reviewed,applied,quiz_score,mastery_percent")
         .eq("user_id", user.id).eq("lesson_id", id).maybeSingle();
       if (prog) setProgress(prog as ProgressRow);
-
-      const { data: sub } = await supabase
-        .from("lesson_task_submissions")
-        .select("id").eq("user_id", user.id).eq("lesson_id", id).maybeSingle();
-      setTaskDone(!!sub);
 
       setAnswers({});
       setShowQuizResult(false);
@@ -364,14 +358,14 @@ const LessonView = () => {
           {next ? (
             <Button
               onClick={() => {
-                if (lesson.practical_task_type && lesson.practical_task_type !== "none" && !taskDone) {
-                  toast.error("سلّم المهمة العملية أولًا قبل الانتقال للدرس التالي");
+                if (quizzes.length > 0 && (!showQuizResult || (progress.quiz_score ?? 0) < 60)) {
+                  toast.error("أجب عن أسئلة الدرس أولًا (60% على الأقل) قبل الانتقال للدرس التالي");
                   return;
                 }
                 navigate(`/lessons/${next.id}`);
               }}
               className="bg-gradient-gold text-primary font-display font-bold"
-              disabled={!!lesson.practical_task_type && lesson.practical_task_type !== "none" && !taskDone}
+              disabled={quizzes.length > 0 && (!showQuizResult || (progress.quiz_score ?? 0) < 60)}
             >
               الدرس التالي <ArrowLeft className="mr-2 h-4 w-4" />
             </Button>
