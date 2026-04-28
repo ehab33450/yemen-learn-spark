@@ -1,7 +1,7 @@
 import { Header } from "@/components/layout/Header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Target, Users, Sparkles, Play } from "lucide-react";
+import { Heart, Target, Users, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { MotivationBanner } from "@/components/motivation/MotivationBanner";
@@ -62,21 +62,20 @@ const About = () => {
             </div>
           </div>
 
-          {/* Intro video placeholder */}
-          <Card className="overflow-hidden mb-16 bg-gradient-hero text-primary-foreground border-gold/20">
-            <div className="aspect-video relative flex items-center justify-center bg-primary/40">
-              <div className="absolute inset-0 opacity-20" style={{
-                backgroundImage: "radial-gradient(circle at 30% 50%, hsl(var(--gold) / 0.4) 0%, transparent 60%)"
-              }} />
-              <div className="relative z-10 text-center px-6">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-gold text-primary mb-4 animate-pulse-gold">
-                  <Play className="h-9 w-9" fill="currentColor" />
-                </div>
-                <h3 className="font-display text-2xl font-bold mb-2">الفيديو التعريفي قادم قريباً</h3>
-                <p className="text-primary-foreground/70 max-w-md mx-auto">
-                  فيديو بالذكاء الاصطناعي يعرّفك بالمنصة وكيف تستخدمها لتحقيق أهدافك.
-                </p>
-              </div>
+          {/* Intro video — رسالة من المؤسس */}
+          <Card className="overflow-hidden mb-16 border-gold/20">
+            <div className="aspect-video bg-black">
+              <iframe
+                src="https://www.youtube.com/embed/ZXsQAXx_ao0"
+                title="رسالة من المؤسس — يمن أفضل"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              />
+            </div>
+            <div className="p-4 text-center">
+              <h3 className="font-display text-lg font-bold text-primary">رسالة من المؤسس — لماذا يمن أفضل؟</h3>
+              <p className="text-sm text-muted-foreground mt-1">شاهد الفيديو لتفهم رؤيتنا، وكيف نريد أن نبني جيلاً يمنياً جديداً.</p>
             </div>
           </Card>
 
@@ -103,7 +102,7 @@ const About = () => {
             <ol className="space-y-4">
               {[
                 "أنشئ حساباً مجانياً (دقيقة واحدة).",
-                "اختر مساراً يُلامس طموحك: لغات، وعي، دين، أو تقنية.",
+                "اختر مساراً يُلامس طموحك: لغات، وعي، مهارات حياتية، تقنية، أو دورات دولية مجانية.",
                 "ابدأ أوّل درس — شاهد، اقرأ، طبّق، وأجب على الاختبار.",
                 "اربح نقاط XP وشارات، وحافظ على سلسلة يومية لا تنقطع.",
                 "انضم لمجموعة نقاش مع 9 طلاب آخرين في نفس الدورة.",

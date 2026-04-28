@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, LogOut, LayoutDashboard, Trophy, Users, Info, Medal, Compass, ShieldCheck } from "lucide-react";
+import { LogOut, LayoutDashboard, Trophy, Users, Info, Medal, Compass, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import logo from "@/assets/logo-yemen-afdal.png";
 
 export const Header = () => {
   const { user, signOut } = useAuth();
@@ -29,9 +30,7 @@ export const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg">
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-gold">
-            <GraduationCap className="h-5 w-5 text-primary" />
-          </div>
+          <img src={logo} alt="شعار يمن أفضل" width={40} height={40} className="h-10 w-10 object-contain" />
           <div className="flex flex-col leading-tight">
             <span className="font-display font-bold text-primary text-lg">يمن أفضل</span>
             <span className="text-[10px] text-muted-foreground">تعلّم. تواصل. ارتقِ.</span>
