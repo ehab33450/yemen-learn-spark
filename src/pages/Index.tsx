@@ -3,19 +3,21 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { GraduationCap, Sparkles, Trophy, Users, BookOpen, Award, Zap, Heart, Star, Download, Target, Play, MessageSquare } from "lucide-react";
+import { Sparkles, Trophy, Users, BookOpen, Award, Zap, Heart, Star, Play, MessageSquare } from "lucide-react";
 import { motion } from "framer-motion";
 import { Header } from "@/components/layout/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { MotivationBanner } from "@/components/motivation/MotivationBanner";
 import studentsImg from "@/assets/students-library.jpg";
 import founderImg from "@/assets/founder-ihab.jpg";
+import logo from "@/assets/logo-yemen-afdal.png";
 
 const tracks = [
   { id: "languages", title: "مسار اللغات", subtitle: "English from zero", emoji: "🌍", description: "تعلم الإنجليزية بأفضل المصادر العربية والعالمية." },
   { id: "awareness", title: "مسار الوعي", subtitle: "Self development", emoji: "🧠", description: "تطوير الذات، إدارة الوقت، العادات، التواصل." },
-  { id: "religious", title: "المسار الديني", subtitle: "Religious sciences", emoji: "📖", description: "علوم القرآن والسيرة والفقه بأسلوب مبسّط." },
+  { id: "life-skills", title: "مسار المهارات الحياتية", subtitle: "Life skills", emoji: "🌱", description: "ذكاء مالي، صحة نفسية، مهارات الدراسة، والاستعداد لسوق العمل." },
   { id: "tech", title: "المسار التقني", subtitle: "Tech & AI", emoji: "💻", description: "الحاسوب، AI، التصميم، العمل الحر." },
+  { id: "free-courses", title: "دورات مجانية دولية", subtitle: "Free global courses", emoji: "🌐", description: "أفضل الدورات المجانية من Harvard و MIT و Coursera و Khan Academy." },
 ];
 
 interface FeaturedCourse {
@@ -148,7 +150,7 @@ const Index = () => {
             <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-3">المسارات التعليمية</h2>
             <p className="text-muted-foreground text-lg">اختر المسار الذي يناسبك وابدأ رحلة التعلم</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {tracks.map((track, i) => (
               <motion.div key={track.id} initial="hidden" whileInView="visible" viewport={{once:true}} variants={fadeUp} transition={{duration:0.5, delay:i*0.15}}>
                 <Card className="glass-card h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
@@ -249,17 +251,15 @@ const Index = () => {
         <div className="container">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-gold">
-                <GraduationCap className="h-6 w-6 text-primary" />
-              </div>
+              <img src={logo} alt="شعار يمن أفضل" width={48} height={48} className="h-12 w-12 object-contain" loading="lazy" />
               <div>
                 <h3 className="font-display font-bold text-lg">يمن أفضل</h3>
-                <p className="text-sm text-primary-foreground/60">منصة تعلّم بناها يمنيون لليمنيين.</p>
+                <p className="text-sm text-primary-foreground/60">منصة صنعها شابٌ يمني لكل شابٍ يمني.</p>
               </div>
             </div>
-            <div className="flex items-center gap-1 text-sm text-primary-foreground/50">
+            <div className="flex items-center gap-2 text-sm text-primary-foreground/60 text-center">
               <Heart className="h-4 w-4 text-accent" />
-              <span>© 2025 يمن أفضل. صُنع بـ ❤️ في اليمن.</span>
+              <span>© 2026 يمن أفضل · منصة صنعها شابٌ يمني · صُنع بـ ❤️ في اليمن.</span>
             </div>
           </div>
         </div>

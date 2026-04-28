@@ -12,7 +12,6 @@ import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, BookOpen, RefreshCw, Sparkles, ExternalLink, Award } from "lucide-react";
 import { AITutorWidget } from "@/components/ai/AITutorWidget";
 import { PersonalGreeting } from "@/components/motivation/PersonalGreeting";
-import { PracticalTask } from "@/components/lesson/PracticalTask";
 
 interface Lesson {
   id: string; title: string; description: string | null;
@@ -342,18 +341,6 @@ const LessonView = () => {
             <label htmlFor="applied" className="text-sm cursor-pointer">طبّقت الدرس (20%)</label>
           </div>
         </Card>
-
-        {/* Practical task — required to advance */}
-        {user && lesson.practical_task_type && lesson.practical_task_type !== "none" && (
-          <PracticalTask
-            lessonId={lesson.id}
-            userId={user.id}
-            taskType={lesson.practical_task_type}
-            prompt={lesson.practical_task_prompt}
-            minChars={lesson.practical_task_min_chars ?? 30}
-            onCompleted={() => { setTaskDone(true); saveProgress({ applied: true }); }}
-          />
-        )}
 
         {!mastered && progress.mastery_percent > 0 && progress.mastery_percent < 80 && (
           <Card className="p-4 mb-6 bg-accent/10 border-accent/30">
