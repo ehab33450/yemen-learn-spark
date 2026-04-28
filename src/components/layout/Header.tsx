@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, LogOut, LayoutDashboard, Trophy, Users, Info, Medal } from "lucide-react";
+import { GraduationCap, LogOut, LayoutDashboard, Trophy, Users, Info, Medal, Compass, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export const Header = () => {
   const { user, signOut } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -60,6 +62,9 @@ export const Header = () => {
                 <DropdownMenuItem onClick={() => navigate("/dashboard")}>
                   <LayoutDashboard className="ml-2 h-4 w-4" /> لوحتي
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/my-learning")}>
+                  <Compass className="ml-2 h-4 w-4" /> مساراتي
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/leaderboard")}>
                   <Trophy className="ml-2 h-4 w-4" /> لوحة الشرف
                 </DropdownMenuItem>
@@ -75,6 +80,11 @@ export const Header = () => {
                 <DropdownMenuItem onClick={() => navigate("/about")}>
                   <Info className="ml-2 h-4 w-4" /> من نحن
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem onClick={() => navigate("/admin")}>
+                    <ShieldCheck className="ml-2 h-4 w-4 text-primary" /> لوحة الأدمن
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="ml-2 h-4 w-4" /> تسجيل الخروج
                 </DropdownMenuItem>

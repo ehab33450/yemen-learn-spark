@@ -18,6 +18,8 @@ import About from "./pages/About.tsx";
 import LeaderboardPage from "./pages/LeaderboardPage.tsx";
 import Groups from "./pages/Groups.tsx";
 import Achievements from "./pages/Achievements.tsx";
+import MyLearning from "./pages/MyLearning.tsx";
+import Admin from "./pages/Admin.tsx";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +45,8 @@ const App = () => (
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/groups" element={<Groups />} />
             <Route path="/achievements" element={<Achievements />} />
+            <Route path="/my-learning" element={<MyLearning />} />
+            <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

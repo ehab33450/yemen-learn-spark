@@ -14,6 +14,126 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_ai_logs: {
+        Row: {
+          action_taken: string | null
+          admin_id: string
+          created_at: string
+          id: string
+          prompt: string
+          response: string | null
+        }
+        Insert: {
+          action_taken?: string | null
+          admin_id: string
+          created_at?: string
+          id?: string
+          prompt: string
+          response?: string | null
+        }
+        Update: {
+          action_taken?: string | null
+          admin_id?: string
+          created_at?: string
+          id?: string
+          prompt?: string
+          response?: string | null
+        }
+        Relationships: []
+      }
+      admin_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          is_broadcast: boolean
+          is_read: boolean
+          recipient_id: string | null
+          sender_id: string
+          title: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          is_broadcast?: boolean
+          is_read?: boolean
+          recipient_id?: string | null
+          sender_id: string
+          title: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          is_broadcast?: boolean
+          is_read?: boolean
+          recipient_id?: string | null
+          sender_id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      admin_notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          is_read: boolean
+          kind: string
+          metadata: Json | null
+          severity: string
+          title: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          kind: string
+          metadata?: Json | null
+          severity?: string
+          title: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          kind?: string
+          metadata?: Json | null
+          severity?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      appreciation_certificates: {
+        Row: {
+          awarded_by: string
+          id: string
+          issued_at: string
+          reason: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          awarded_by: string
+          id?: string
+          issued_at?: string
+          reason?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          awarded_by?: string
+          id?: string
+          issued_at?: string
+          reason?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           category: string
