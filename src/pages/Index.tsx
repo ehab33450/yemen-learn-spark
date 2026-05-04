@@ -1,267 +1,307 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Sparkles, Trophy, Users, BookOpen, Award, Zap, Heart, Star, Play, MessageSquare } from "lucide-react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { z } from "zod";
 import { motion } from "framer-motion";
-import { Header } from "@/components/layout/Header";
+import { Sparkles, BookOpen, Users, Award, Trophy, Heart, ShieldCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { MotivationBanner } from "@/components/motivation/MotivationBanner";
-import studentsImg from "@/assets/students-library.jpg";
-import founderImg from "@/assets/founder-ihab.jpg";
+import { lovable } from "@/integrations/lovable";
+import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo-yemen-afdal.png";
+import founderImg from "@/assets/founder-ihab.jpg";
 
-const tracks = [
-  { id: "languages", title: "مسار اللغات", subtitle: "English from zero", emoji: "🌍", description: "تعلم الإنجليزية بأفضل المصادر العربية والعالمية." },
-  { id: "awareness", title: "مسار الوعي", subtitle: "Self development", emoji: "🧠", description: "تطوير الذات، إدارة الوقت، العادات، التواصل." },
-  { id: "life-skills", title: "مسار المهارات الحياتية", subtitle: "Life skills", emoji: "🌱", description: "ذكاء مالي، صحة نفسية، مهارات الدراسة، والاستعداد لسوق العمل." },
-  { id: "tech", title: "المسار التقني", subtitle: "Tech & AI", emoji: "💻", description: "الحاسوب، AI، التصميم، العمل الحر." },
-  { id: "free-courses", title: "دورات مجانية دولية", subtitle: "Free global courses", emoji: "🌐", description: "أفضل الدورات المجانية من Harvard و MIT و Coursera و Khan Academy." },
-];
-
-interface FeaturedCourse {
-  id: string; slug: string; title: string; description: string | null;
-  level: string | null; duration: string | null; emoji: string | null;
-}
-
-const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } };
+const signInSchema = z.object({
+  email: z.string().email("بريد إلكتروني غير صالح"),
+  password: z.string().min(6, "كلمة المرور 6 أحرف على الأقل"),
+});
+const signUpSchema = signInSchema.extend({
+  displayName: z.string().trim().min(2, "الاسم قصير").max(60, "الاسم طويل"),
+});
 
 const Index = () => {
   const navigate = useNavigate();
-  const [featuredCourses, setFeaturedCourses] = useState<FeaturedCourse[]>([]);
+  const { user, loading: authLoading } = useAuth();
+  const [params] = useSearchParams();
+  const [mode, setMode] = useState<"signin" | "signup">(
+    params.get("mode") === "signin" ? "signin" : "signup"
+  );
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // Logged-in users skip this page entirely
   useEffect(() => {
-    supabase
-      .from("courses")
-      .select("id,slug,title,description,level,duration,emoji")
-      .eq("is_published", true)
-      .order("sort_order")
-      .limit(4)
-      .then(({ data }) => setFeaturedCourses(data ?? []));
-  }, []);
+    if (authLoading || !user) return;
+    (async () => {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("welcomed_at")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (profile && !profile.welcomed_at) {
+        navigate("/welcome", { replace: true });
+      } else {
+        navigate("/my-learning", { replace: true });
+      }
+    })();
+  }, [user, authLoading, navigate]);
+
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      if (mode === "signup") {
+        const parsed = signUpSchema.safeParse({ email, password, displayName });
+        if (!parsed.success) {
+          toast.error(parsed.error.errors[0].message);
+          return;
+        }
+        const { error } = await supabase.auth.signUp({
+          email: parsed.data.email,
+          password: parsed.data.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/welcome`,
+            data: { display_name: parsed.data.displayName },
+          },
+        });
+        if (error) throw error;
+        toast.success("تم إنشاء حسابك! تحقق من بريدك لتأكيد التسجيل.");
+      } else {
+        const parsed = signInSchema.safeParse({ email, password });
+        if (!parsed.success) {
+          toast.error(parsed.error.errors[0].message);
+          return;
+        }
+        const { error } = await supabase.auth.signInWithPassword({
+          email: parsed.data.email,
+          password: parsed.data.password,
+        });
+        if (error) throw error;
+        toast.success("مرحباً بعودتك!");
+        navigate("/my-learning");
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "حدث خطأ ما";
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    setLoading(true);
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: `${window.location.origin}/welcome`,
+    });
+    if (result.error) {
+      toast.error("تعذّر تسجيل الدخول عبر Google");
+      setLoading(false);
+    }
+  };
+
+  const features = [
+    { icon: BookOpen, label: "محتوى عربي مختار" },
+    { icon: Users, label: "مجموعات نقاش" },
+    { icon: Trophy, label: "تحديات وشارات" },
+    { icon: Award, label: "شهادات إنجاز" },
+  ];
 
   return (
-    <div className="min-h-screen bg-background font-body">
-      <Header />
-      <MotivationBanner />
+    <div className="min-h-screen bg-gradient-hero text-primary-foreground font-body relative overflow-hidden">
+      {/* Decorative background */}
+      <div
+        className="absolute inset-0 opacity-15 pointer-events-none"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 15% 30%, hsl(38 62% 55% / 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 75%, hsl(0 80% 45% / 0.25) 0%, transparent 45%)",
+        }}
+      />
 
-      {/* === HERO === */}
-      <section className="bg-gradient-hero text-primary-foreground py-16 md:py-24 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10" style={{backgroundImage:"radial-gradient(circle at 20% 50%, hsl(38 62% 55% / 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, hsl(0 80% 45% / 0.2) 0%, transparent 40%)"}} />
-        <div className="container relative z-10 grid md:grid-cols-2 gap-10 items-center">
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{duration: 0.6}}>
-            <Badge className="mb-5 bg-gold/20 text-gold border-gold/30 font-display">🇾🇪 صناعة يمنية</Badge>
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-5">
-              <span className="text-gradient-gold">يمن أفضل</span><br />
+      {/* Top brand bar */}
+      <header className="relative z-10 container flex items-center justify-between py-5">
+        <Link to="/" className="flex items-center gap-2">
+          <img src={logo} alt="شعار يمن أفضل" width={44} height={44} className="h-11 w-11 object-contain" />
+          <div className="flex flex-col leading-tight">
+            <span className="font-display font-bold text-gold text-lg">يمن أفضل</span>
+            <span className="text-[11px] text-primary-foreground/70">تعلّم. تواصل. ارتقِ.</span>
+          </div>
+        </Link>
+        <Badge className="hidden sm:inline-flex bg-gold/15 text-gold border-gold/30 font-display">🇾🇪 صناعة يمنية</Badge>
+      </header>
+
+      <main className="relative z-10 container pb-16 pt-4">
+        <div className="grid lg:grid-cols-2 gap-10 items-center">
+          {/* === RIGHT (intro on RTL) === */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="order-2 lg:order-1"
+          >
+            <h1 className="font-display text-4xl md:text-5xl font-extrabold leading-tight mb-5">
+              <span className="text-gradient-gold">يمن أفضل</span>
+              <br />
               يبدأ بك أنت.
             </h1>
-            <p className="text-lg text-primary-foreground/80 mb-7 leading-relaxed">
-              منصة تعلّم ذاتي للشباب اليمني — تعلّم بخطوتك، تواصل مع زملائك في مجموعات نقاش،
-              واحصل على شهادات تفتح لك أبواباً جديدة.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button
-                size="lg"
-                onClick={() => navigate("/auth?mode=signup")}
-                className="bg-gradient-gold text-primary font-display font-extrabold text-lg hover:opacity-90 px-8 gap-2"
-              >
-                <Sparkles className="h-5 w-5 text-primary" />
-                ابدأ رحلتك الآن
-              </Button>
-              <Button
-                size="lg"
-                onClick={() => navigate("/about")}
-                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-display font-bold text-lg px-8 gap-2 shadow-elegant"
-              >
-                <Play className="h-5 w-5 text-primary" fill="currentColor" />
-                تعرّف علينا
-              </Button>
-            </div>
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="relative"
+            {/* Founder mini-card */}
+            <Card className="glass-card border-gold/20 bg-primary-foreground/5 backdrop-blur mb-6">
+              <CardContent className="p-5 flex gap-4 items-center">
+                <img
+                  src={founderImg}
+                  alt="إيهاب المزلم — مؤسّس المنصة"
+                  width={120}
+                  height={120}
+                  className="h-20 w-20 rounded-2xl object-cover ring-2 ring-gold/40 shrink-0"
+                />
+                <div>
+                  <p className="font-display font-bold text-base text-gold mb-1">
+                    إيهاب المزلم — مؤسّس المنصة
+                  </p>
+                  <p className="text-sm text-primary-foreground/85 leading-relaxed">
+                    "أنا شابٌ يمنيّ مثلك تماماً. أردتُ أن أصنع منصةً تجمع أفضل ما يحتاجه شبابنا
+                    للتعلّم والارتقاء — مجاناً، وبأيدينا."
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* What you get */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+              {features.map((f, i) => (
+                <div
+                  key={i}
+                  className="text-center p-3 rounded-xl bg-primary-foreground/8 border border-gold/15 backdrop-blur-sm"
+                >
+                  <f.icon className="h-5 w-5 mx-auto mb-1.5 text-gold" />
+                  <span className="font-display text-xs leading-tight block">{f.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 text-sm text-primary-foreground/70">
+              <ShieldCheck className="h-4 w-4 text-gold" />
+              <span>مجاناً تماماً · بياناتك محفوظة · أكثر من 1,200 طالب</span>
+            </div>
+          </motion.section>
+
+          {/* === LEFT (auth card) === */}
+          <motion.section
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className="order-1 lg:order-2"
           >
-            <img
-              src={studentsImg}
-              alt="طلاب يمنيون يتعلّمون في مكتبة"
-              width={1536}
-              height={1024}
-              className="rounded-2xl shadow-elegant ring-2 ring-gold/20 object-cover w-full aspect-[4/3]"
-            />
-            <div className="absolute -bottom-4 -right-4 bg-gradient-gold text-primary px-4 py-2 rounded-xl shadow-elegant font-display font-bold text-sm">
-              +1,200 طالب يتعلّمون الآن
-            </div>
-          </motion.div>
-        </div>
+            <Card className="glass-card border-gold/20 shadow-elegant">
+              <CardContent className="p-6 md:p-8">
+                <div className="text-center mb-5">
+                  <Sparkles className="h-8 w-8 text-gold mx-auto mb-2" />
+                  <h2 className="font-display text-2xl font-bold text-foreground">
+                    {mode === "signup" ? "ابدأ رحلتك الآن" : "أهلاً بعودتك"}
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {mode === "signup"
+                      ? "أنشئ حسابك المجاني وادخل إلى المسارات"
+                      : "سجّل الدخول لمتابعة تعلّمك"}
+                  </p>
+                </div>
 
-        {/* Stats strip */}
-        <div className="container relative z-10 mt-14">
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{duration:0.6, delay:0.3}} className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto">
-            {[
-              { icon: BookOpen, label: "دروس عربية مختارة", color: "text-gold" },
-              { icon: Users, label: "مجموعات نقاش 10×10", color: "text-gold" },
-              { icon: Trophy, label: "تحديات وشارات", color: "text-gold" },
-              { icon: Award, label: "شهادات إنجاز", color: "text-gold" },
-            ].map((s, i) => (
-              <div key={i} className="text-center p-4 rounded-2xl bg-primary-foreground/8 backdrop-blur-sm border border-gold/20 hover:bg-primary-foreground/12 transition-colors">
-                <s.icon className={`h-6 w-6 mx-auto mb-2 ${s.color}`} />
-                <span className="font-display font-semibold text-xs md:text-sm leading-tight block">{s.label}</span>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full mb-3"
+                  onClick={handleGoogle}
+                  disabled={loading}
+                >
+                  <svg className="ml-2 h-4 w-4" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A10.99 10.99 0 0 0 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.1A6.61 6.61 0 0 1 5.5 12c0-.73.13-1.44.35-2.1V7.07H2.18A11 11 0 0 0 1 12c0 1.78.43 3.46 1.18 4.93l3.66-2.83z"/>
+                    <path fill="#EA4335" d="M12 4.75c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.46 1.45 14.97.5 12 .5A10.99 10.99 0 0 0 2.18 7.07l3.66 2.83C6.71 6.68 9.14 4.75 12 4.75z"/>
+                  </svg>
+                  المتابعة عبر Google
+                </Button>
 
-      {/* === FOUNDER STORY === */}
-      <section className="py-16 bg-secondary/40">
-        <div className="container max-w-5xl">
-          <div className="grid md:grid-cols-[200px_1fr] gap-8 items-center">
-            <img
-              src={founderImg}
-              alt="إيهاب المزلم — مؤسّس المنصة"
-              width={400} height={400}
-              loading="lazy"
-              className="rounded-2xl shadow-elegant w-[180px] h-[180px] object-cover ring-4 ring-gold/30 mx-auto"
-            />
-            <div>
-              <Badge className="mb-3 bg-accent/10 text-accent border-accent/30">قصّة المؤسّس</Badge>
-              <h2 className="font-display text-2xl md:text-3xl font-bold text-primary mb-3">
-                "أنا طالب يمني… مثلك تماماً."
-              </h2>
-              <p className="text-foreground/80 leading-relaxed mb-4">
-                أنا <span className="font-bold text-primary">إيهاب المزلم</span>، أعاني كما يعاني أي شاب يمني من ضيق الفُرص.
-                قرّرت أن أصنع شيئاً يستفيد منه الجميع، ونبني به يمناً أفضل بأيدينا.
-              </p>
-              <Button variant="outline" onClick={() => navigate("/about")} className="font-display">
-                اقرأ القصّة كاملةً ←
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+                  <div className="relative flex justify-center text-xs">
+                    <span className="bg-card px-2 text-muted-foreground">أو بالبريد الإلكتروني</span>
+                  </div>
+                </div>
 
-      {/* === TRACKS === */}
-      <section className="py-20 bg-secondary/30">
-        <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-3">المسارات التعليمية</h2>
-            <p className="text-muted-foreground text-lg">اختر المسار الذي يناسبك وابدأ رحلة التعلم</p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {tracks.map((track, i) => (
-              <motion.div key={track.id} initial="hidden" whileInView="visible" viewport={{once:true}} variants={fadeUp} transition={{duration:0.5, delay:i*0.15}}>
-                <Card className="glass-card h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
-                  <CardHeader className="pb-3">
-                    <div className="text-4xl mb-3">{track.emoji}</div>
-                    <CardTitle className="font-display text-xl">{track.title}</CardTitle>
-                    <p className="text-xs text-muted-foreground font-mono">{track.subtitle}</p>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{track.description}</p>
-                  </CardContent>
-                  <CardFooter>
-              <Button variant="outline" onClick={() => navigate(`/tracks/${track.id}`)} className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors font-display text-sm">استكشف المسار</Button>
-                  </CardFooter>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* === FEATURES === */}
-      <section className="py-20">
-        <div className="container">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-center text-primary mb-12">ما الذي يميّزنا؟</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {[
-              { icon: Zap, title: "نظام نقاط XP", desc: "اكسب نقاط خبرة مع كل درس وارتقِ في المستويات.", color: "text-gold" },
-              { icon: Award, title: "شهادات إنجاز", desc: "أكمل الدورة، احصل على شهادتك، شاركها.", color: "text-accent" },
-              { icon: MessageSquare, title: "مجموعات نقاش", desc: "10 طلاب لكل دورة، تتناقشون وتتعلّمون معاً.", color: "text-emerald" },
-              { icon: Trophy, title: "تحديات أسبوعية", desc: "تحديات ممتعة تحفزك على الاستمرار.", color: "text-gold" },
-              { icon: Star, title: "محتوى عربي مختار", desc: "أفضل الفيديوهات العربية على يوتيوب، مُرتّبة لك.", color: "text-accent" },
-              { icon: Sparkles, title: "مساعد ذكي 24/7", desc: "اسأله عن أي درس، يشرح لك بأسلوبك.", color: "text-emerald" },
-            ].map((f, i) => (
-              <motion.div key={i} initial="hidden" whileInView="visible" viewport={{once:true}} variants={fadeUp} transition={{duration:0.4, delay:i*0.1}}>
-                <Card className="glass-card h-full p-6">
-                  <f.icon className={`h-8 w-8 mb-3 ${f.color}`} />
-                  <h3 className="font-display font-bold text-lg mb-2">{f.title}</h3>
-                  <p className="text-muted-foreground text-sm">{f.desc}</p>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* === POPULAR COURSES === */}
-      <section className="py-20 bg-secondary/30">
-        <div className="container">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-center text-primary mb-12">دورات مميزة</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
-            {featuredCourses.map((course, i) => (
-              <motion.div key={course.id} initial="hidden" whileInView="visible" viewport={{once:true}} variants={fadeUp} transition={{duration:0.4, delay:i*0.1}}>
-                <Card className="glass-card h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group">
-                  <div className="h-32 bg-gradient-hero flex items-center justify-center text-5xl">{course.emoji}</div>
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Badge variant="outline" className="text-xs">{course.level}</Badge>
-                      <span className="text-xs text-muted-foreground">{course.duration}</span>
+                <form onSubmit={handleEmailAuth} className="space-y-3">
+                  {mode === "signup" && (
+                    <div className="space-y-1.5">
+                      <Label htmlFor="displayName">الاسم الكامل</Label>
+                      <Input
+                        id="displayName"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        placeholder="محمد علي"
+                        required
+                      />
                     </div>
-                    <CardTitle className="font-display text-base leading-snug">{course.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="pb-2">
-                    <p className="text-muted-foreground text-xs line-clamp-2">{course.description}</p>
-                    <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-                      {course.duration && <span className="flex items-center gap-1"><BookOpen className="h-3 w-3" /> {course.duration}</span>}
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button asChild size="sm" className="w-full bg-gradient-gold text-primary font-display font-semibold hover:opacity-90">
-                      <Link to={`/courses/${course.slug}`}>عرض التفاصيل</Link>
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+                  )}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="email">البريد الإلكتروني</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="password">كلمة المرور</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-gold text-primary font-display font-bold text-base hover:opacity-90"
+                    disabled={loading}
+                  >
+                    {loading ? "..." : mode === "signup" ? "إنشاء الحساب والبدء" : "تسجيل الدخول"}
+                  </Button>
+                </form>
 
-      {/* === CTA === */}
-      <section className="py-20">
-        <div className="container max-w-3xl">
-          <motion.div initial="hidden" whileInView="visible" viewport={{once:true}} variants={fadeUp} transition={{duration:0.6}} className="bg-gradient-hero rounded-2xl p-10 md:p-16 text-center text-primary-foreground relative overflow-hidden">
-            <div className="absolute inset-0 opacity-20" style={{backgroundImage:"radial-gradient(circle at 30% 70%, hsl(38 62% 55% / 0.4) 0%, transparent 50%)"}} />
-            <div className="relative z-10">
-              <Sparkles className="h-10 w-10 mx-auto mb-4 text-gold" />
-              <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">يمنٌ أفضل يبدأ بخطوة منك</h2>
-              <p className="text-primary-foreground/80 mb-8 text-lg">انضم لآلاف الشباب الذين قرّروا أن يصنعوا فرقاً بأنفسهم.</p>
-              <Button size="lg" onClick={() => navigate("/auth?mode=signup")} className="bg-gradient-gold text-primary font-display font-bold text-lg hover:opacity-90 px-10">انضم الآن</Button>
-            </div>
-          </motion.div>
+                <p className="text-center text-sm text-muted-foreground mt-4">
+                  {mode === "signup" ? "لديك حساب بالفعل؟" : "ليس لديك حساب؟"}{" "}
+                  <button
+                    onClick={() => setMode(mode === "signup" ? "signin" : "signup")}
+                    className="text-accent font-medium hover:underline"
+                  >
+                    {mode === "signup" ? "تسجيل الدخول" : "إنشاء حساب جديد"}
+                  </button>
+                </p>
+              </CardContent>
+            </Card>
+          </motion.section>
         </div>
-      </section>
+      </main>
 
-      {/* === FOOTER === */}
-      <footer className="bg-primary text-primary-foreground py-12">
-        <div className="container">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <img src={logo} alt="شعار يمن أفضل" width={48} height={48} className="h-12 w-12 object-contain" loading="lazy" />
-              <div>
-                <h3 className="font-display font-bold text-lg">يمن أفضل</h3>
-                <p className="text-sm text-primary-foreground/60">منصة صنعها شابٌ يمني لكل شابٍ يمني.</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-primary-foreground/60 text-center">
-              <Heart className="h-4 w-4 text-accent" />
-              <span>© 2026 يمن أفضل · منصة صنعها شابٌ يمني · صُنع بـ ❤️ في اليمن.</span>
-            </div>
+      <footer className="relative z-10 border-t border-primary-foreground/10 py-6">
+        <div className="container flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-primary-foreground/60">
+          <div className="flex items-center gap-2">
+            <Heart className="h-3.5 w-3.5 text-accent" />
+            <span>© 2026 يمن أفضل · منصة صنعها شابٌ يمني · صُنع بـ ❤️ في اليمن.</span>
           </div>
+          <Link to="/about" className="hover:text-gold transition-colors">من نحن</Link>
         </div>
       </footer>
     </div>

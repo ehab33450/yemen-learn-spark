@@ -41,7 +41,7 @@ const Auth = () => {
       if (profile && !profile.welcomed_at) {
         navigate("/welcome", { replace: true });
       } else {
-        navigate("/dashboard", { replace: true });
+        navigate("/my-learning", { replace: true });
       }
     })();
   }, [user, navigate]);
@@ -78,7 +78,7 @@ const Auth = () => {
         });
         if (error) throw error;
         toast.success("مرحباً بعودتك!");
-        navigate("/dashboard");
+        navigate("/my-learning");
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "حدث خطأ ما";
